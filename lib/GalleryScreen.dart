@@ -1,5 +1,9 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:gallery_app_1/my_icons_icons.dart';
+import 'package:image_picker/image_picker.dart';
 
 class GalleryScreen extends StatefulWidget {
   GalleryScreen({Key key}) : super(key: key);
@@ -12,6 +16,10 @@ class _GalleryScreenState extends State<GalleryScreen> {
 
   // List of images in the assets to be displayed
   List<String> imageAssetList = ["image-1.jpg", "image-2.jpg","image-3.jpg","image-4.jpg","image-5.jpg","image-6.jpg"];
+
+  // 23 File and Memory Images
+  File selectedImage;
+  Uint8List memoryImage;
 
   @override
   Widget build(BuildContext context) {
@@ -114,10 +122,56 @@ class _GalleryScreenState extends State<GalleryScreen> {
                   );
                 },
               )
-            )
+            ),
+
+             // 28 render the file and memory button
+            buildFileButton(),
+
+            Row(
+              children: [
+                // 29 Check first if the File is selected
+                if(selectedImage != null)  Image.file(selectedImage, width: 100, height: 100),
+                // 32 check if the byte variable is not null
+                if(memoryImage != null)  Image.memory(memoryImage, width: 100, height: 100),
+              ],
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  // 23 Create the upload image function
+  Widget buildFileButton(){
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 10),
+      child: TextButton(
+        child: Text("Select a File"),
+        onPressed: () async {
+          // 24 add the image picker
+          final picker = ImagePicker();
+          // 25 get the image file from the gallery
+          final pickedFile = await picker.getImage(source: ImageSource.gallery);
+
+          // 26 check if the returned file is null
+          // This means that the user cancelled the image picking
+          if(pickedFile == null) return; // terminate the function
+
+           // 27 get the path directory of selected image
+          final file = File(pickedFile.path);
+          // 31 get the file bytes
+          final bytes = await file.readAsBytes();
+
+          setState(() {
+            // File
+            selectedImage = file; 
+            // 32 stored it in the state variable       
+            // Bytes    
+            memoryImage = bytes;
+          });
+
+        }
+      )
     );
   }
 }
